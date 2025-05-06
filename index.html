@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>实时工资计算器</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; }
+        .container { background: #f5f5f5; padding: 20px; border-radius: 8px; }
+        .result { font-size: 22px; color: #2c3e50; margin: 20px 0; }
+        #hourlyRate { color: #e74c3c; font-weight: bold; }
+        .password-container {
+            position: relative;
+            display: inline-block;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>') no-repeat center;
+            opacity: 0.6;
+        }
+        .toggle-password.hide {
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5-5l2 2m3.93 3.93l1.4 1.4"/><path d="M1 1l22 22m-6-6a10 10 0 0 1-12.6-12.6"/></svg>');
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>工资实时计算器</h2>
+    <div class="password-container">
+        <label>月薪（元）:</label>
+        <input type="password" id="salary" placeholder="输入月薪" style="padding-right: 35px;">
+        <div class="toggle-password" onclick="togglePassword()"></div>
+    </div>
+    <div class="result">
+        已赚取金额：<span id="currentAmount">0</span> 元
+    </div>
+    <div>
+        每小时单价：<span id="hourlyRate">0</span> 元/小时
+    </div>
+</div>
+
+<script>
+        function togglePassword() {
+            const salaryInput = document.getElementById('salary');
+            const toggleBtn = document.querySelector('.toggle-password');
+
+            if (salaryInput.type === 'password') {
+                salaryInput.type = 'text';
+                toggleBtn.classList.add('hide');
+            } else {
+                salaryInput.type = 'password';
+                toggleBtn.classList.remove('hide');
+            }
+        }
+        function calculateSalary() {
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const now = new Date();
+
+            // 计算本月总天数
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const totalDays = monthEnd.getDate();
+
+            // 计算总秒数（考虑夏令时）
+            const totalSeconds = (monthEnd - monthStart) / 1000;
+
+            // 计算已过秒数
+            const elapsedSeconds = (now - monthStart) / 1000;
+
+            // 计算结果
+            const currentAmount = (salary / totalSeconds * elapsedSeconds).toFixed(5);
+            const hourlyRate = (salary / (totalDays * 24)).toFixed(5);
+
+            // 更新显示
+            document.getElementById('currentAmount').textContent = currentAmount;
+            document.getElementById('hourlyRate').textContent = hourlyRate;
+        }
+
+        // 每秒更新
+        setInterval(calculateSalary, 1000);
+        // 输入时即时更新
+        document.getElementById('salary').addEventListener('input', calculateSalary);
+    </script>
+</body>
+</html>
